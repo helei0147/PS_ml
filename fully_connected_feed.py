@@ -51,12 +51,12 @@ def placeholder_inputs(batch_size):
   # image and label tensors, except the first dimension is now batch_size
   # rather than the full size of the train or test data sets.
   images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                         mnist.IMAGE_PIXELS))
+                                                         mnist.OBSERVATION_NUM))
   labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(data_set, images_pl, labels_pl):
+def fill_feed_dict(observations_feed, normals_feed, images_pl, labels_pl):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
@@ -75,11 +75,9 @@ def fill_feed_dict(data_set, images_pl, labels_pl):
   """
   # Create the feed_dict for the placeholders filled with the next
   # `batch size ` examples.
-  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
-                                                 FLAGS.fake_data)
   feed_dict = {
-      images_pl: images_feed,
-      labels_pl: labels_feed,
+      observations_pl: observations_feed,
+      normals_pl: normals_feed,
   }
   return feed_dict
 
@@ -126,9 +124,7 @@ def run_training():
         FLAGS.batch_size)
 
     # Build a Graph that computes predictions from the inference model.
-    logits = mnist.inference(images_placeholder,
-                             FLAGS.hidden1,
-                             FLAGS.hidden2)
+    logits = mnist.inference(images_placeholder)
 
     # Add to the Graph the Ops for loss calculation.
     loss = mnist.loss(logits, labels_placeholder)
