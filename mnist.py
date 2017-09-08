@@ -22,56 +22,81 @@ import math
 import tensorflow.python.platform
 import tensorflow as tf
 
-# The MNIST dataset has 10 classes, representing the digits 0 through 9.
-NUM_CLASSES = 10
-
-# The MNIST images are always 28x28 pixels.
-IMAGE_SIZE = 28
-IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+OBSERVATION_NUM = 96
 
 
-def inference(images, hidden1_units, hidden2_units):
-    """Build the MNIST model up to where it may be used for inference.
-
-    Args:
-      images: Images placeholder, from inputs().
-      hidden1: Size of the first hidden layer.
-      hidden2: Size of the second hidden layer.
-
-    Returns:
-      softmax_linear: Output tensor with the computed logits.
-    """
+def inference(images):
+    hidden1_units = 4096
+    hidden2_units = 4096
+    hidden3_units = 2048
+    hidden4_units = 2048
+    hidden5_units = 2048
     # Hidden 1
     with tf.name_scope('hidden1') as scope:
         weights = tf.Variable(
             tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
-                                stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
+                                stddev=1.0 / math.sqrt(float(OBSERVATION_NUM))),
             name='weights')
         biases = tf.Variable(tf.zeros([hidden1_units]),
                              name='biases')
         hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
     # Hidden 2
     with tf.name_scope('hidden2') as scope:
+        keep_prob = tf.placeholder(tf.float32);
+        hidden1_drop = tf.nn.dropout(hidden1,keep_prob);
         weights = tf.Variable(
             tf.truncated_normal([hidden1_units, hidden2_units],
                                 stddev=1.0 / math.sqrt(float(hidden1_units))),
             name='weights')
         biases = tf.Variable(tf.zeros([hidden2_units]),
                              name='biases')
-        hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
+        hidden2 = tf.nn.relu(tf.matmul(hidden1_drop, weights) + biases)
+    # Hidden 3
+    with tf.name_scope('hidden3') as scope:
+        keep_prob = tf.placeholder(tf.float32);
+        hidden2_drop = tf.nn.dropout(hidden2,keep_prob);
+        weights = tf.Variable(
+            tf.truncated_normal([hidden2_units, hidden3_units],
+                                stddev=1.0 / math.sqrt(float(hidden2_units))),
+            name='weights')
+        biases = tf.Variable(tf.zeros([hidden3_units]),
+                             name='biases')
+        hidden3 = tf.nn.relu(tf.matmul(hidden2_drop, weights) + biases)
+    # Hidden 4
+    with tf.name_scope('hidden4') as scope:
+        keep_prob = tf.placeholder(tf.float32);
+        hidden3_drop = tf.nn.dropout(hidden3,keep_prob);
+        weights = tf.Variable(
+            tf.truncated_normal([hidden3_units, hidden4_units],
+                                stddev=1.0 / math.sqrt(float(hidden3_units))),
+            name='weights')
+        biases = tf.Variable(tf.zeros([hidden4_units]),
+                             name='biases')
+        hidden4 = tf.nn.relu(tf.matmul(hidden3_drop, weights) + biases)
+    # Hidden 5
+    with tf.name_scope('hidden5') as scope:
+        keep_prob = tf.placeholder(tf.float32);
+        hidden4_drop = tf.nn.dropout(hidden4,keep_prob);
+        weights = tf.Variable(
+            tf.truncated_normal([hidden4_units, hidden5_units],
+                                stddev=1.0 / math.sqrt(float(hidden4_units))),
+            name='weights')
+        biases = tf.Variable(tf.zeros([hidden5_units]),
+                             name='biases')
+        hidden5 = tf.nn.relu(tf.matmul(hidden4_drop, weights) + biases)
     # Linear
     with tf.name_scope('softmax_linear') as scope:
         weights = tf.Variable(
-            tf.truncated_normal([hidden2_units, NUM_CLASSES],
-                                stddev=1.0 / math.sqrt(float(hidden2_units))),
+            tf.truncated_normal([hidden5_units, 3],
+                                stddev=1.0 / math.sqrt(float(hidden5_units))),
             name='weights')
         biases = tf.Variable(tf.zeros([NUM_CLASSES]),
                              name='biases')
-        logits = tf.matmul(hidden2, weights) + biases
-    return logits
+        normals = tf.matmul(hidden2, weights) + biases
+    return normals
 
 
-def loss(logits, labels):
+def loss(est_normals, gts):
     """Calculates the loss from the logits and the labels.
 
     Args:
@@ -81,18 +106,8 @@ def loss(logits, labels):
     Returns:
       loss: Loss tensor of type float.
     """
-    # Convert from sparse integer labels in the range [0, NUM_CLASSSES)
-    # to 1-hot dense float vectors (that is we will have batch_size vectors,
-    # each with NUM_CLASSES values, all of which are 0.0 except there will
-    # be a 1.0 in the entry corresponding to the label).
-    batch_size = tf.size(labels)
-    labels = tf.expand_dims(labels, 1)
-    indices = tf.expand_dims(tf.range(0, batch_size, 1), 1)
-    concated = tf.concat(1, [indices, labels])
-    onehot_labels = tf.sparse_to_dense(
-        concated, tf.pack([batch_size, NUM_CLASSES]), 1.0, 0.0)
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits,
-                                                            onehot_labels,
+                                                            normals,
                                                             name='xentropy')
     loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
     return loss
