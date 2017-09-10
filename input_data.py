@@ -88,7 +88,7 @@ def read_data(directory):
             normal_collection = normals
         else:
             normal_collection = np.concatenate((normal_collection, normals))
-        temp = np.load(filename)
+        temp = np.load(directory+'observations/'+filename)
         if observation_collection == []:
             observation_collection = temp
         else:
