@@ -134,6 +134,32 @@ class DataSet(object):
     end = self._index_in_epoch
     return self._images[start:end], self._labels[start:end]
 
+def read_data(directory):
+    ori_path = os.getcwd()
+    os.chdir(directory)
+    npy_files = os.listdir(directory+'observations/')
+    observation_collection = []
+    normal_collection = []
+    for filename in npy_files:
+        model_index_string = filename.split('_')[0]
+        normal_filename = 'normals/normal'+model_index_string+'.txt'
+        normals = read_normal_to_array(normal_filename)
+        normal_collection = np.concatenate(normal_collection,normals)
+        temp = np.load(filename)
+        observation_collection = np.concatenate(observation_collection,temp)
+    return observation_collection,normal_collection
+    os.chdir(ori_path)
+
+def read_normal_to_array(normal_filename):
+    with open(normal_filename) as fid:
+        line = fid.readline()
+
+    normal_strings = line.split()
+    n_nums = []
+    for string in normal_strings:
+        n_nums.append(float(string))
+    normals = np.reshape(n_nums,(-1,3))
+    return normals
 
 def read_data_sets(train_dir, fake_data=False, one_hot=False):
   class DataSets(object):
@@ -146,31 +172,19 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False):
     data_sets.test = DataSet([], [], fake_data=True)
     return data_sets
 
-  TRAIN_IMAGES = 'train-images-idx3-ubyte.gz'
-  TRAIN_LABELS = 'train-labels-idx1-ubyte.gz'
-  TEST_IMAGES = 't10k-images-idx3-ubyte.gz'
-  TEST_LABELS = 't10k-labels-idx1-ubyte.gz'
   VALIDATION_SIZE = 5000
 
-  local_file = maybe_download(TRAIN_IMAGES, train_dir)
-  train_images = extract_images(local_file)
+  train_observations,train_normals = read_data('data/train/')
 
-  local_file = maybe_download(TRAIN_LABELS, train_dir)
-  train_labels = extract_labels(local_file, one_hot=one_hot)
+  test_observations, test_normals = read_data('data/test/')
 
-  local_file = maybe_download(TEST_IMAGES, train_dir)
-  test_images = extract_images(local_file)
-
-  local_file = maybe_download(TEST_LABELS, train_dir)
-  test_labels = extract_labels(local_file, one_hot=one_hot)
-
-  validation_images = train_images[:VALIDATION_SIZE]
-  validation_labels = train_labels[:VALIDATION_SIZE]
-  train_images = train_images[VALIDATION_SIZE:]
-  train_labels = train_labels[VALIDATION_SIZE:]
+  validation_images = train_observations[:VALIDATION_SIZE]
+  validation_labels = train_normals[:VALIDATION_SIZE]
+  train_images = train_observations[VALIDATION_SIZE:]
+  train_labels = train_normals[VALIDATION_SIZE:]
 
   data_sets.train = DataSet(train_images, train_labels)
   data_sets.validation = DataSet(validation_images, validation_labels)
-  data_sets.test = DataSet(test_images, test_labels)
+  data_sets.test = DataSet(test_observations, test_normals)
 
   return data_sets
