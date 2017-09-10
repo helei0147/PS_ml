@@ -77,20 +77,17 @@ def read_data(directory):
     read in observations for pixels and the related normals
     return observations and normals
     '''
-    ori_path = os.getcwd()
-    os.chdir(directory)
     npy_files = os.listdir(directory+'observations/')
     observation_collection = []
     normal_collection = []
     for filename in npy_files:
         model_index_string = filename.split('_')[0]
-        normal_filename = 'normals/normal'+model_index_string+'.txt'
+        normal_filename = directory+'normals/normal'+model_index_string+'.txt'
         normals = read_normal_to_array(normal_filename)
         normal_collection = np.concatenate(normal_collection,normals)
         temp = np.load(filename)
         observation_collection = np.concatenate(observation_collection,temp)
     return observation_collection,normal_collection
-    os.chdir(ori_path)
 
 def read_normal_to_array(normal_filename):
     '''
