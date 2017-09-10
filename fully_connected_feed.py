@@ -25,11 +25,14 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
-flags.DEFINE_integer('hidden1', 128, 'Number of units in hidden layer 1.')
-flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
+flags.DEFINE_integer('hidden1', 4096, 'Number of units in hidden layer 1.')
+flags.DEFINE_integer('hidden2', 4096, 'Number of units in hidden layer 2.')
+flags.DEFINE_integer('hidden1', 2048, 'Number of units in hidden layer 3.')
+flags.DEFINE_integer('hidden2', 2048, 'Number of units in hidden layer 4.')
+flags.DEFINE_integer('hidden1', 2048, 'Number of units in hidden layer 5.')
 flags.DEFINE_integer('batch_size', 100, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
-flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
+flags.DEFINE_string('train_dir', 'data/train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 
@@ -56,7 +59,7 @@ def placeholder_inputs(batch_size):
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(observations_feed, normals_feed, images_pl, labels_pl):
+def fill_feed_dict(observations_feed, normals_feed, observations_pl, normals_pl):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
