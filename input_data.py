@@ -72,6 +72,11 @@ class DataSet(object):
     return self._images[start:end], self._labels[start:end]
 
 def read_data(directory):
+    '''
+    directory: including two folders: observations/ and normals/
+    read in observations for pixels and the related normals
+    return observations and normals
+    '''
     ori_path = os.getcwd()
     os.chdir(directory)
     npy_files = os.listdir(directory+'observations/')
@@ -88,6 +93,9 @@ def read_data(directory):
     os.chdir(ori_path)
 
 def read_normal_to_array(normal_filename):
+    '''
+    read normals from text file, floats are splited by ' '
+    '''
     with open(normal_filename) as fid:
         line = fid.readline()
 
@@ -110,16 +118,15 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False):
     return data_sets
 
   VALIDATION_SIZE = 5000
-
+  # read data from specific directory
   train_observations,train_normals = read_data('data/train/')
-
   test_observations, test_normals = read_data('data/test/')
-
+  # split training data into validation data and training data
   validation_images = train_observations[:VALIDATION_SIZE]
   validation_labels = train_normals[:VALIDATION_SIZE]
   train_images = train_observations[VALIDATION_SIZE:]
   train_labels = train_normals[VALIDATION_SIZE:]
-
+  # initialize data_sets with the splited data
   data_sets.train = DataSet(train_images, train_labels)
   data_sets.validation = DataSet(validation_images, validation_labels)
   data_sets.test = DataSet(test_observations, test_normals)
