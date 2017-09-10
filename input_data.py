@@ -84,9 +84,9 @@ def read_data(directory):
         model_index_string = filename.split('_')[0]
         normal_filename = directory+'normals/normal'+model_index_string+'.txt'
         normals = read_normal_to_array(normal_filename)
-        normal_collection = np.concatenate(normal_collection,normals)
+        normal_collection = np.concatenate((np.array(normal_collection),np.array(normals)))
         temp = np.load(filename)
-        observation_collection = np.concatenate(observation_collection,temp)
+        observation_collection = np.concatenate( (np.array(observation_collection), np.array(temp) ) )
     return observation_collection,normal_collection
 
 def read_normal_to_array(normal_filename):
