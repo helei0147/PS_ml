@@ -106,11 +106,10 @@ def loss(est_normals, gts):
     Returns:
       loss: Loss tensor of type float.
     """
-    print("est:%s, gts:%s " % (tf.shape(est_normals), tf.shape(gts)))
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(est_normals,
-                                                            gts,
-                                                            name='xentropy')
-    loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
+    pow_para = tf.zeros(tf.shape(est_normals))+2
+    a = est_normals-gts
+    L = tf.pow(a, pow_para)
+    loss = tf.reduce_sum(L,1)
     return loss
 
 
@@ -147,9 +146,8 @@ def evaluation(logits, labels):
     """Evaluate the quality of the logits at predicting the label.
 
     Args:
-      logits: Logits tensor, float - [batch_size, NUM_CLASSES].
-      labels: Labels tensor, int32 - [batch_size], with values in the
-        range [0, NUM_CLASSES).
+      logits: observation tensor, float - [batch_size, NUM_CLASSES].
+      labels: normal tensor, float - [batch_size, 3]
 
     Returns:
       A scalar int32 tensor with the number of examples (out of batch_size)
