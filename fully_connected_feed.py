@@ -59,7 +59,7 @@ def placeholder_inputs(batch_size):
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(dataset, observations_pl, normals_pl):
+def fill_feed_dict(data_set, observations_pl, normals_pl):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
@@ -78,7 +78,7 @@ def fill_feed_dict(dataset, observations_pl, normals_pl):
   """
   # Create the feed_dict for the placeholders filled with the next
   # `batch size ` examples.
-  observations_feed, normals_feed = data_set.next_batch(FLAGS.batch_size,FLAGS.fake_data=False)
+  observations_feed, normals_feed = data_set.next_batch(FLAGS.batch_size)
   feed_dict = {
       observations_pl: observations_feed,
       normals_pl: normals_feed,
