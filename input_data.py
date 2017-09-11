@@ -123,6 +123,7 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False):
   validation_labels = train_normals[:VALIDATION_SIZE]
   train_images = train_observations[VALIDATION_SIZE:]
   train_labels = train_normals[VALIDATION_SIZE:]
+  print("train:%s, validation:%s, test:%s"%(train_labels.shape, validation_labels.shape, test_normals.shape))
   # initialize data_sets with the splited data
   data_sets.train = DataSet(train_images, train_labels)
   data_sets.validation = DataSet(validation_images, validation_labels)
