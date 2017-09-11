@@ -16,8 +16,8 @@ import tensorflow.python.platform
 import numpy
 import tensorflow as tf
 
-from tensorflow.g3doc.tutorials.mnist import input_data
-from tensorflow.g3doc.tutorials.mnist import mnist
+import input_data
+import mnist
 
 
 # Basic model parameters as external flags.
