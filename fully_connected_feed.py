@@ -154,7 +154,7 @@ def run_training():
 
     # Instantiate a SummaryWriter to output summaries and the Graph.
     summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
-                                            graph_def=sess.graph)
+                                            graph=sess.graph)
 
     # And then after everything is built, start the training loop.
     for step in range(FLAGS.max_steps):
