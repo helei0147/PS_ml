@@ -122,9 +122,9 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False):
 
   VALIDATION_SIZE = 5000
   # read data from specific directory
-  train_observations = np.load('train_observations.npy');
+  train_observations = np.load('train_channel1.npy');
   train_normals = np.load('train_normals.npy');
-  test_observations = np.load('test_observations.npy');
+  test_observations = np.load('test_channel1.npy');
   test_normals = np.load('test_normals.npy');
   # split training data into validation data and training data
   validation_images = train_observations[:VALIDATION_SIZE]
