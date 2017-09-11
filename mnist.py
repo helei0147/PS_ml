@@ -34,7 +34,7 @@ def inference(images):
     # Hidden 1
     with tf.name_scope('hidden1') as scope:
         weights = tf.Variable(
-            tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
+            tf.truncated_normal([OBSERVATION_NUM, hidden1_units],
                                 stddev=1.0 / math.sqrt(float(OBSERVATION_NUM))),
             name='weights')
         biases = tf.Variable(tf.zeros([hidden1_units]),
@@ -90,9 +90,9 @@ def inference(images):
             tf.truncated_normal([hidden5_units, 3],
                                 stddev=1.0 / math.sqrt(float(hidden5_units))),
             name='weights')
-        biases = tf.Variable(tf.zeros([NUM_CLASSES]),
+        biases = tf.Variable(tf.zeros([3]),
                              name='biases')
-        normals = tf.matmul(hidden2, weights) + biases
+        normals = tf.matmul(hidden5, weights) + biases
     return normals
 
 
@@ -106,9 +106,10 @@ def loss(est_normals, gts):
     Returns:
       loss: Loss tensor of type float.
     """
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits,
-                                                            normals,
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(est_normals,
+                                                            gts,
                                                             name='xentropy')
+    print("est:%s, gts:%s "%(est_normals.shape, gts.shape))
     loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
     return loss
 
