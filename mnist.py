@@ -106,10 +106,10 @@ def loss(est_normals, gts):
     Returns:
       loss: Loss tensor of type float.
     """
+    print("est:%s, gts:%s " % (tf.shape(est_normals), tf.shape(gts)))
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(est_normals,
                                                             gts,
                                                             name='xentropy')
-    print("est:%s, gts:%s "%(est_normals.shape, gts.shape))
     loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
     return loss
 
