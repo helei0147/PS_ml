@@ -146,17 +146,16 @@ def evaluation(logits, labels):
     """Evaluate the quality of the logits at predicting the label.
 
     Args:
-      logits: observation tensor, float - [batch_size, NUM_CLASSES].
+      logits: observation tensor, float - [batch_size, 3].
       labels: normal tensor, float - [batch_size, 3]
 
     Returns:
-      A scalar int32 tensor with the number of examples (out of batch_size)
-      that were predicted correctly.
+      total error in degree for this batch
     """
-    # For a classifier model, we can use the in_top_k Op.
-    # It returns a bool tensor with shape [batch_size] that is true for
-    # the examples where the label's is was in the top k (here k=1)
-    # of all logits for that example.
-    correct = tf.nn.in_top_k(logits, labels, 1)
+
+    error = tf.multiply(logits, labels)
+    cos_error = tf.reduce_sum(error, 1)
+    rad_error = tf.acos(cos_error)
+    deg_error = rad_error/3.1415926*180
     # Return the number of true entries.
-    return tf.reduce_sum(tf.cast(correct, tf.int32))
+    return tf.reduce_sum(deg_error)

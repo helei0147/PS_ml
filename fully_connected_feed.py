@@ -108,10 +108,10 @@ def do_eval(sess,
     feed_dict = fill_feed_dict(data_set,
                                images_placeholder,
                                labels_placeholder)
-    true_count += sess.run(eval_correct, feed_dict=feed_dict)
-  precision = float(true_count) / float(num_examples)
-  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
-        (num_examples, true_count, precision))
+    error += sess.run(eval_correct, feed_dict=feed_dict)
+  avg_error = float(error) / float(num_examples)
+  print('  Num examples: %d  avg_error: %0.04f' %
+        (num_examples, avg_error))
 
 
 def run_training():
