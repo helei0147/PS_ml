@@ -140,7 +140,7 @@ def run_training():
     eval_correct = mnist.evaluation(logits, labels_placeholder)
 
     # Build the summary operation based on the TF collection of Summaries.
-    summary_op = tf.merge_all_summaries()
+    summary_op = tf.summary.merge_all()
 
     # Create a saver for writing training checkpoints.
     saver = tf.train.Saver()
@@ -149,12 +149,12 @@ def run_training():
     sess = tf.Session()
 
     # Run the Op to initialize the variables.
-    init = tf.initialize_all_variables()
+    init = tf.global_variables_initializer()
     sess.run(init)
 
     # Instantiate a SummaryWriter to output summaries and the Graph.
-    summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-                                            graph_def=sess.graph_def)
+    summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
+                                            graph_def=sess.graph)
 
     # And then after everything is built, start the training loop.
     for step in range(FLAGS.max_steps):
