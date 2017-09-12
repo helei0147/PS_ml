@@ -150,10 +150,22 @@ def evaluation(logits, labels):
     Returns:
       total error in degree for this batch
     """
-
+    # regularize estimated normal(logits)
+    logits = regularize_normals(logits)
+    labels = regularize_normals(labels)
     error = tf.multiply(logits, labels)
     cos_error = tf.reduce_sum(error, 1)
     rad_error = tf.acos(cos_error)
     deg_error = rad_error/3.1415926*180
     # Return the number of true entries.
     return tf.reduce_sum(deg_error)
+
+def regularize_normals(logits):
+    pow_para = tf.zeros(tf.shape(logits))+2
+    squared = tf.pow(logits,pow_para)
+    sqr_sum = tf.reduce_sum(squared, 1)
+    pow_para = tf.zeros(tf.shape(sqr_sum))+0.5
+    normal_length = tf.pow(sqr_sum,pow_para)
+    weight = tf.concat(1,[normal_length,normal_length,normal_length])
+    regulared = tf.divide(logits,weight)
+    return regulared
