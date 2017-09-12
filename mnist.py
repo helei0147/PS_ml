@@ -167,7 +167,8 @@ def regularize_normals(logits):
     squared = tf.pow(logits,pow_para)
     sqr_sum = tf.reduce_sum(squared, 1)
     pow_para = tf.zeros(tf.shape(sqr_sum))+0.5
-    normal_length = tf.pow(sqr_sum,pow_para)
-    weight = tf.concat(1,[normal_length,normal_length,normal_length])
+    normal_lengths = tf.pow(sqr_sum,pow_para)
+    normal_lengths = tf.expand_dims(normal_lengths,1)
+    weight = tf.concat(1,[normal_lengths, normal_lengths, normal_lengths])
     regulared = tf.divide(logits,weight)
     return regulared
