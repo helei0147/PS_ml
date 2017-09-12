@@ -134,7 +134,7 @@ def run_training():
         FLAGS.batch_size)
 
     # Build a Graph that computes predictions from the inference model.
-    logits = mnist.inference(images_placeholder, keep_prob_placeholder)
+    logits, keep_prob_placeholder = mnist.inference(images_placeholder)
 
     # Add to the Graph the Ops for loss calculation.
     loss = mnist.loss(logits, labels_placeholder)
