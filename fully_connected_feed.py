@@ -204,15 +204,6 @@ def run_training():
                 keep_prob_placeholder,
                 data_sets.validation,
                 1)
-        # Evaluate against the test set.
-        print('Test Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                keep_prob_placeholder,
-                data_sets.test,
-                1)
 
 
 def main(_):
