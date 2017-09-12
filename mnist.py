@@ -93,7 +93,7 @@ def inference(images):
         biases = tf.Variable(tf.zeros([3]),
                              name='biases')
         normals = tf.matmul(hidden5, weights) + biases
-    return normals
+    return normals, keep_prob
 
 
 def loss(est_normals, gts):

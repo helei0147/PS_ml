@@ -59,7 +59,7 @@ def placeholder_inputs(batch_size):
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(data_set, observations_pl, normals_pl):
+def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_para):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
@@ -82,6 +82,7 @@ def fill_feed_dict(data_set, observations_pl, normals_pl):
   feed_dict = {
       observations_pl: observations_feed,
       normals_pl: normals_feed,
+      keep_prob: keep_prob_para
   }
   return feed_dict
 
@@ -90,7 +91,8 @@ def do_eval(sess,
             eval_correct,
             images_placeholder,
             labels_placeholder,
-            data_set):
+            data_set,
+            keep_prob_para):
   """Runs one evaluation against the full epoch of data.
 
   Args:
@@ -108,7 +110,8 @@ def do_eval(sess,
   for step in range(steps_per_epoch):
     feed_dict = fill_feed_dict(data_set,
                                images_placeholder,
-                               labels_placeholder)
+                               labels_placeholder,
+                               keep_prob_para)
     error += sess.run(eval_correct, feed_dict=feed_dict)
   avg_error = float(error) / float(num_examples)
   print('  Num examples: %d  avg_error: %0.04f' %
@@ -162,9 +165,10 @@ def run_training():
 
       # Fill a feed dictionary with the actual set of images and labels
       # for this particular training step.
-      feed_dict = fill_feed_dict(data_sets.train,
+      feed_dict = fill_feed_dict(data_sets,
                                  images_placeholder,
-                                 labels_placeholder)
+                                 labels_placeholder,
+                                 0.5)
 
       # Run one step of the model.  The return values are the activations
       # from the `train_op` (which is discarded) and the `loss` Op.  To
@@ -193,21 +197,24 @@ def run_training():
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
-                data_sets.train)
+                data_sets.train,
+                0.5)
         # Evaluate against the validation set.
         print('Validation Data Eval:')
         do_eval(sess,
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
-                data_sets.validation)
+                data_sets.validation,
+                1)
         # Evaluate against the test set.
         print('Test Data Eval:')
         do_eval(sess,
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
-                data_sets.test)
+                data_sets.test,
+                1)
 
 
 def main(_):
