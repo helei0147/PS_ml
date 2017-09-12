@@ -110,7 +110,7 @@ def loss(est_normals, gts):
     pow_para = tf.zeros(tf.shape(est_normals))+2
     a = est_normals-gts
     L = tf.pow(a, pow_para)
-    loss = tf.reduce_sum(L,1)
+    loss = tf.reduce_sum(L)
     return loss
 
 
