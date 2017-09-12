@@ -42,9 +42,6 @@ def inference(images):
         hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
 
     # Dropout 1
-    with tf.name_scope('dropout1') as scope:
-        keep_prob = tf.placeholder(tf.float32)
-        h_fc1_drop = tf.nn.dropout(hidden1,keep_prob)
 
     # Hidden 2
     with tf.name_scope('hidden2') as scope:
@@ -54,12 +51,7 @@ def inference(images):
             name='weights')
         biases = tf.Variable(tf.zeros([hidden2_units]),
                              name='biases')
-        hidden2 = tf.nn.relu(tf.matmul(h_fc1_drop, weights) + biases)
-
-    # Dropout 2
-    with tf.name_scope('dropout2') as scope:
-        keep_prob = tf.placeholder(tf.float32)
-        h_fc2_drop = tf.nn.dropout(hidden2, keep_prob)
+        hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
 
     # Hidden 3
     with tf.name_scope('hidden3') as scope:
@@ -69,12 +61,7 @@ def inference(images):
             name='weights')
         biases = tf.Variable(tf.zeros([hidden3_units]),
                              name='biases')
-        hidden3 = tf.nn.relu(tf.matmul(h_fc2_drop, weights) + biases)
-
-    # Dropout 3
-    with tf.name_scope('dropout3') as scope:
-        keep_prob = tf.placeholder(tf.float32)
-        h_fc3_drop = tf.nn.dropout(hidden3, keep_prob)
+        hidden3 = tf.nn.relu(tf.matmul(hidden2, weights) + biases)
 
     # Hidden 4
     with tf.name_scope('hidden4') as scope:
@@ -84,12 +71,7 @@ def inference(images):
             name='weights')
         biases = tf.Variable(tf.zeros([hidden4_units]),
                              name='biases')
-        hidden4 = tf.nn.relu(tf.matmul(h_fc3_drop, weights) + biases)
-
-    # Dropout 4
-    with tf.name_scope('dropout4') as scope:
-        keep_prob = tf.placeholder(tf.float32)
-        h_fc4_drop = tf.nn.dropout(hidden4, keep_prob)
+        hidden4 = tf.nn.relu(tf.matmul(hidden3, weights) + biases)
 
     # Hidden 5
     with tf.name_scope('hidden5') as scope:
@@ -101,12 +83,7 @@ def inference(images):
             name='weights')
         biases = tf.Variable(tf.zeros([hidden5_units]),
                              name='biases')
-        hidden5 = tf.nn.relu(tf.matmul(h_fc4_drop, weights) + biases)
-
-    # Dropout 5
-    with tf.name_scope('dropout5') as scope:
-        keep_prob  = tf.placeholder(tf.float32)
-        h_fc5_drop = tf.nn.dropout(hidden5, keep_prob)
+        hidden5 = tf.nn.relu(tf.matmul(hidden4, weights) + biases)
 
     # Linear
     with tf.name_scope('softmax_linear') as scope:
