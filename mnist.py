@@ -107,6 +107,8 @@ def loss(est_normals, gts):
     Returns:
       loss: Loss tensor of type float.
     """
+    est_normals = regularize_normals(est_normals)
+    gts = regularize_normals(gts)
     pow_para = tf.zeros(tf.shape(est_normals))+2
     a = est_normals-gts
     L = tf.pow(a, pow_para)
