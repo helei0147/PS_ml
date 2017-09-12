@@ -56,10 +56,11 @@ def placeholder_inputs(batch_size):
   images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                          mnist.OBSERVATION_NUM))
   labels_placeholder = tf.placeholder(tf.float32, shape=(batch_size,3))
-  return images_placeholder, labels_placeholder
+  keep_prob_placeholder = tf.placeholder(tf.float32)
+  return images_placeholder, labels_placeholder, keep_prob_placeholder
 
 
-def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_para):
+def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, keep_prob_value):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
@@ -82,7 +83,7 @@ def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_para):
   feed_dict = {
       observations_pl: observations_feed,
       normals_pl: normals_feed,
-      keep_prob: keep_prob_para
+      keep_prob_pl: keep_prob_value
   }
   return feed_dict
 
@@ -91,8 +92,9 @@ def do_eval(sess,
             eval_correct,
             images_placeholder,
             labels_placeholder,
+            keep_prob_placeholder,
             data_set,
-            keep_prob_para):
+            keep_prob_value):
   """Runs one evaluation against the full epoch of data.
 
   Args:
@@ -111,7 +113,8 @@ def do_eval(sess,
     feed_dict = fill_feed_dict(data_set,
                                images_placeholder,
                                labels_placeholder,
-                               keep_prob_para)
+                               keep_prob_placeholder,
+                               keep_prob_value)
     error += sess.run(eval_correct, feed_dict=feed_dict)
   avg_error = float(error) / float(num_examples)
   print('  Num examples: %d  avg_error: %0.04f' %
@@ -127,11 +130,11 @@ def run_training():
   # Tell TensorFlow that the model will be built into the default Graph.
   with tf.Graph().as_default():
     # Generate placeholders for the images and labels.
-    images_placeholder, labels_placeholder = placeholder_inputs(
+    images_placeholder, labels_placeholder, keep_prob_placeholder = placeholder_inputs(
         FLAGS.batch_size)
 
     # Build a Graph that computes predictions from the inference model.
-    logits = mnist.inference(images_placeholder)
+    logits = mnist.inference(images_placeholder, keep_prob_placeholder)
 
     # Add to the Graph the Ops for loss calculation.
     loss = mnist.loss(logits, labels_placeholder)
@@ -165,9 +168,10 @@ def run_training():
 
       # Fill a feed dictionary with the actual set of images and labels
       # for this particular training step.
-      feed_dict = fill_feed_dict(data_sets,
+      feed_dict = fill_feed_dict(data_sets.train,
                                  images_placeholder,
                                  labels_placeholder,
+                                 keep_prob_placeholder,
                                  0.5)
 
       # Run one step of the model.  The return values are the activations
@@ -197,6 +201,7 @@ def run_training():
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
+                keep_prob_placeholder,
                 data_sets.train,
                 0.5)
         # Evaluate against the validation set.
@@ -205,6 +210,7 @@ def run_training():
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
+                keep_prob_placeholder,
                 data_sets.validation,
                 1)
         # Evaluate against the test set.
@@ -213,6 +219,7 @@ def run_training():
                 eval_correct,
                 images_placeholder,
                 labels_placeholder,
+                keep_prob_placeholder,
                 data_sets.test,
                 1)
 
