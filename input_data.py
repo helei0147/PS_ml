@@ -110,8 +110,11 @@ def read_data_sets(train_channel_index):
   # split training data into validation data and training data
   # shuffle the pixels
   train_num = train_observations.shape[0]
+  print('train_num: '+str(train_num))
   perm = np.arange(train_num)
-  perm = np.random.shuffle(perm)
+  np.random.shuffle(perm)
+  print(train_observations.shape)
+  print(train_normals.shape)
   train_observations = train_observations[perm]
   train_normals = train_normals[perm]
 
