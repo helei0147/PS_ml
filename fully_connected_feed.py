@@ -24,13 +24,13 @@ import mnist
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
+flags.DEFINE_integer('max_steps', 5000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('hidden1', 4096, 'Number of units in hidden layer 1.')
 flags.DEFINE_integer('hidden2', 4096, 'Number of units in hidden layer 2.')
 flags.DEFINE_integer('hidden3', 2048, 'Number of units in hidden layer 3.')
 flags.DEFINE_integer('hidden4', 2048, 'Number of units in hidden layer 4.')
 flags.DEFINE_integer('hidden5', 2048, 'Number of units in hidden layer 5.')
-flags.DEFINE_integer('batch_size', 100, 'Batch size.  '
+flags.DEFINE_integer('batch_size', 1000, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data/train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
