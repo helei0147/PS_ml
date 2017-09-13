@@ -115,6 +115,7 @@ def inference(images):
         biases = tf.Variable(tf.zeros([3]),
                              name='biases')
         normals = tf.matmul(hidden5, weights) + biases
+        normals = regularize_normals(normals)
     return normals, keep_prob
 
 
