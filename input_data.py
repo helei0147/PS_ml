@@ -41,11 +41,6 @@ class DataSet(object):
 
   def next_batch(self, batch_size, fake_data=False):
     """Return the next `batch_size` examples from this data set."""
-    if fake_data:
-      fake_image = [1.0 for _ in xrange(784)]
-      fake_label = 0
-      return [fake_image for _ in xrange(batch_size)], [
-          fake_label for _ in xrange(batch_size)]
     start = self._index_in_epoch
     self._index_in_epoch += batch_size
     if self._index_in_epoch > self._num_examples:
@@ -105,12 +100,6 @@ def read_data_sets(train_channel_index):
   class DataSets(object):
     pass
   data_sets = DataSets()
-
-  if fake_data:
-    data_sets.train = DataSet([], [], fake_data=True)
-    data_sets.validation = DataSet([], [], fake_data=True)
-    data_sets.test = DataSet([], [], fake_data=True)
-    return data_sets
 
   VALIDATION_SIZE = 5000
   # read data from specific directory

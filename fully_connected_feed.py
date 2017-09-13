@@ -159,7 +159,7 @@ def run_training():
     sess.run(init)
 
     # Instantiate a SummaryWriter to output summaries and the Graph.
-    summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
+    summary_writer = tf.summary.FileWriter('summary',
                                             graph=sess.graph)
 
     # And then after everything is built, start the training loop.
@@ -194,7 +194,7 @@ def run_training():
 
       # Save a checkpoint and evaluate the model periodically.
       if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-        saver.save(sess, FLAGS.train_dir, global_step=step)
+        saver.save(sess, 'summary', global_step=step)
         # Evaluate against the validation set.
 #        do_eval(sess,
 #                eval_correct,
