@@ -33,6 +33,7 @@ flags.DEFINE_integer('hidden5', 2048, 'Number of units in hidden layer 5.')
 flags.DEFINE_integer('batch_size', 1000, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_integer('train_channel_index', 1, 'Directory to put the training data.')
+flags.DEFINE_string('log_dir','log/fully_connected_feed','dir to put log data')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 
@@ -191,10 +192,12 @@ def run_training():
         # Update the events file.
         summary_str = sess.run(summary_op, feed_dict=feed_dict)
         summary_writer.add_summary(summary_str, step)
+        summary_writer.flush()
 
       # Save a checkpoint and evaluate the model periodically.
       if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-        saver.save(sess, 'summary', global_step=step)
+          checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
+          saver.save(sess, checkpoint_file, global_step=step)
         # Evaluate against the validation set.
 #        do_eval(sess,
 #                eval_correct,
