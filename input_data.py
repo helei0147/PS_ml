@@ -108,6 +108,13 @@ def read_data_sets(train_channel_index):
   test_observations = np.load('data/test/test_channel'+str(train_channel_index)+'.npy');
   test_normals = np.load('data/test/test_normals.npy');
   # split training data into validation data and training data
+  # shuffle the pixels
+  train_num = train_observations.shape[0]
+  perm = np.arange(train_num)
+  perm = np.random.shuffle(perm)
+  train_observations = train_observations[perm]
+  train_normals = train_normals[perm]
+
   validation_images = train_observations[:VALIDATION_SIZE]
   validation_labels = train_normals[:VALIDATION_SIZE]
   train_images = train_observations[VALIDATION_SIZE:]
