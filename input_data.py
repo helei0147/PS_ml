@@ -101,7 +101,7 @@ def read_normal_to_array(normal_filename):
     normals = np.reshape(n_nums,(-1,3))
     return normals
 
-def read_data_sets(train_dir, fake_data=False, one_hot=False):
+def read_data_sets(train_channel_index):
   class DataSets(object):
     pass
   data_sets = DataSets()
@@ -114,10 +114,10 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False):
 
   VALIDATION_SIZE = 5000
   # read data from specific directory
-  train_observations = np.load('train_channel1.npy');
-  train_normals = np.load('train_normals.npy');
-  test_observations = np.load('test_channel1.npy');
-  test_normals = np.load('test_normals.npy');
+  train_observations = np.load('data/train/train_channel'+str(train_channel_index)+'.npy');
+  train_normals = np.load('data/train/train_normals.npy');
+  test_observations = np.load('data/test/test_channel'+str(train_channel_index)+'.npy');
+  test_normals = np.load('data/test/test_normals.npy');
   # split training data into validation data and training data
   validation_images = train_observations[:VALIDATION_SIZE]
   validation_labels = train_normals[:VALIDATION_SIZE]
