@@ -42,7 +42,9 @@ def inference(images):
         hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
 
     # Dropout 1
-
+    with tf.name_scope('dropout1') as scope:
+        keep_prob = tf.placeholder(tf.float32)
+        h_fc1_drop = tf.nn.dropout(hidden1, keep_prob)
     # Hidden 2
     with tf.name_scope('hidden2') as scope:
         weights = tf.Variable(
