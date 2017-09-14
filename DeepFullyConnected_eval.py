@@ -12,30 +12,14 @@ FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('checkpoint_dir', 'log/fully_connected_feed/',
                            """Directory where to read model checkpoints.""")
+def np_regularize_normal(normal):
+    square = np.power(normal,2)
+    sum_row = np.sum(square, axis = 1)
+    sum_row = np.expand_dims(sum_row,1)
+    normal_len = np.power(sum_row, 0.5)
+    len_mat = np.concatenate([normal_len, normal_len, normal_len], axis = 1)
+    regularized = np.divide(normal,len_mat)
 
-
-
-def eval_once(predict_op, image):
-
-    saver = tf.train.Saver()
-    with tf.Session() as sess:
-        ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
-
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(sess, ckpt.model_checkpoint_path)
-            global_step = ckpt.model_checkpoint_path.split('/')[-1].split('_')[-1]
-            print('Model restored.')
-        else:
-            print('No checkpoint file found')
-            return
-
-    image_outputs = []
-    for i in range(3):
-        feed_dict = {image_filename_placeholder: image[i*128:(i+1)*128]}
-        image_outputs.append(sess.run(predict_op, feed_dict=feed_dict))
-
-
-    return image_outputs
 def calculate_normal_error_in_degree(est_normals, gts):
     '''
     calculate normal error in degree
@@ -54,10 +38,14 @@ def expand(normals, axis = 0):
     num = normals.shape[0]
     return np.concatenate(normals[np.arange(num), ...],axis)
 
-if __name__ == '__main__':
+def evaluate_channel(channel_index):
+    '''
+    Evaluate test pixels with related network
+    channel_index: start from 1, three channels of image
+    '''
     with tf.Graph().as_default():
-         
-        image_channel1 = np.load('data/test/test_channel1.npy')
+
+        image_channel1 = np.load('data/test/test_channel'+str(channel_index)+'.npy')
         test_pixel_num = image_channel1.shape[0]
         BATCH_SIZE = 1000
         TEST_BATCH_NUM = test_pixel_num//BATCH_SIZE
@@ -67,7 +55,7 @@ if __name__ == '__main__':
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
-            ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
+            ckpt = tf.train.get_checkpoint_state('log/fully_connected_feed/channel'+str(channel_index))
 
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
@@ -82,11 +70,23 @@ if __name__ == '__main__':
                 feed_dict = {image_placeholder: image_channel1[i*BATCH_SIZE:(i+1)*BATCH_SIZE], keep_prob: 1}
                 outputs = sess.run(logits, feed_dict=feed_dict)
                 normal_outputs[i,...] = outputs
-    np.save('normal_outputs.npy', normal_outputs)
-    
+
+
     predict_outputs = expand(normal_outputs)
     print(predict_outputs.shape)
+    np.save('predict_outputs_'+str(channel_index)+'.npy', predict_outputs)
     gts = np.load('data/test/test_normals.npy')
     degree_error = calculate_normal_error_in_degree(predict_outputs,gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
-    print('avg_error = %s' % (avg_error))
+    print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
+    return predict_outputs
+
+if __name__ = '__main__':
+    normal1 = evaluate_channel(1)
+    normal2 = evaluate_channel(2)
+    normal3 = evaluate_channel(3)
+    normal_avg = np_regularize_normal(normal1+normal2+normal3)
+    gts = np.load('data/test/test_normals.npy')
+    degree_error = calculate_normal_error_in_degree(normal_avg, gts)
+    avg_error = np.sum(degree_error)/degree_error.shape[0]
+    print('total degree error: %s' % (avg_error))
