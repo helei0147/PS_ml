@@ -40,7 +40,7 @@ def expand(normals, axis = 0):
     num = normals.shape[0]
     return np.concatenate(normals[np.arange(num), ...],axis)
 
-def evaluate_channel(channel_index):
+def evaluate_channel(channel_index, log_dir):
     '''
     Evaluate test pixels with related network
     channel_index: start from 1, three channels of image
@@ -53,11 +53,11 @@ def evaluate_channel(channel_index):
         TEST_BATCH_NUM = test_pixel_num//BATCH_SIZE
         OBSERVATION_NUM = 96
         image_placeholder = tf.placeholder(tf.float32,shape = (BATCH_SIZE,OBSERVATION_NUM))
-        logits, keep_prob = mnist.inference(image_placeholder)
+        logits, keep_prob, shadow_prob = mnist.inference(image_placeholder)
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
-            ckpt = tf.train.get_checkpoint_state('log/fully_connected_feed/channel'+str(channel_index))
+            ckpt = tf.train.get_checkpoint_state(log_dir+'channel'+str(channel_index))
 
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
@@ -69,7 +69,7 @@ def evaluate_channel(channel_index):
             normal_outputs = np.ndarray((TEST_BATCH_NUM,BATCH_SIZE,3))
 
             for i in range(TEST_BATCH_NUM):
-                feed_dict = {image_placeholder: image_channel1[i*BATCH_SIZE:(i+1)*BATCH_SIZE], keep_prob: 1}
+                feed_dict = {image_placeholder: image_channel1[i*BATCH_SIZE:(i+1)*BATCH_SIZE], keep_prob: 1, shadow_prob: 1}
                 outputs = sess.run(logits, feed_dict=feed_dict)
                 normal_outputs[i,...] = outputs
 
@@ -84,9 +84,10 @@ def evaluate_channel(channel_index):
     return predict_outputs
 
 if __name__ == '__main__':
-    normal1 = evaluate_channel(1)
-    normal2 = evaluate_channel(2)
-    normal3 = evaluate_channel(3)
+    log_dir = 'log/shadow/'
+    normal1 = evaluate_channel(1, log_dir)
+    normal2 = evaluate_channel(2, log_dir)
+    normal3 = evaluate_channel(3, log_dir)
     normal_avg = np_regularize_normal(normal1+normal2+normal3)
     gts = np.load('data/test/test_normals.npy')
     degree_error = calculate_normal_error_in_degree(normal_avg, gts)

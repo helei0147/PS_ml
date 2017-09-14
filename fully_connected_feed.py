@@ -13,7 +13,7 @@ import os.path
 import time
 
 import tensorflow.python.platform
-import numpy
+import numpy as np
 import tensorflow as tf
 
 import input_data
@@ -58,7 +58,8 @@ def placeholder_inputs(batch_size):
                                                          mnist.OBSERVATION_NUM))
   labels_placeholder = tf.placeholder(tf.float32, shape=(batch_size,3))
   keep_prob_placeholder = tf.placeholder(tf.float32)
-  return images_placeholder, labels_placeholder, keep_prob_placeholder
+  shadow_prob_placeholder = tf.placeholder(tf.float32)
+  return images_placeholder, labels_placeholder, keep_prob_placeholder, shadow_prob_placeholder
 
 
 def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, shadow_prob_pl, keep_prob_value,shadow_prob_value):
@@ -84,8 +85,9 @@ def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, shadow_p
   feed_dict = {
       observations_pl: observations_feed,
       normals_pl: normals_feed,
-      keep_prob_pl: keep_prob_value
-      shadow_prob_pl: shadow_prb_value
+      keep_prob_pl: keep_prob_value,
+      shadow_prob_pl: shadow_prob_value
+
   }
   return feed_dict
 
@@ -170,6 +172,7 @@ def run_training(channel_index, log_folder):
     _total_experiment_time = 10000000
     shadow_prob_buffer = np.random.binomial(_total_experiment_time, 0.05, FLAGS.max_steps)
     shadow_prob_buffer = shadow_prob_buffer/_total_experiment_time
+    shadow_prob_buffer = 1-shadow_prob_buffer
     # And then after everything is built, start the training loop.
     for step in range(FLAGS.max_steps):
       start_time = time.time()
@@ -210,9 +213,9 @@ def run_training(channel_index, log_folder):
 
 
 def main(_):
-  run_training(1, 'log/fully_connected_feed/channel1')
-  run_training(2, 'log/fully_connected_feed/channel2')
-  run_training(3, 'log/fully_connected_feed/channel3')
+  run_training(1, 'log/shadow/channel1')
+  run_training(2, 'log/shadow/channel2')
+  run_training(3, 'log/shadow/channel3')
 
 
 if __name__ == '__main__':
