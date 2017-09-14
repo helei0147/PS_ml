@@ -19,6 +19,7 @@ def np_regularize_normal(normal):
     normal_len = np.power(sum_row, 0.5)
     len_mat = np.concatenate([normal_len, normal_len, normal_len], axis = 1)
     regularized = np.divide(normal,len_mat)
+    return regularized
 
 def calculate_normal_error_in_degree(est_normals, gts):
     '''
