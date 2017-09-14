@@ -122,11 +122,11 @@ def do_eval(sess,
         (num_examples, avg_error))
 
 
-def run_training():
+def run_training(channel_index, log_folder):
   """Train MNIST for a number of steps."""
   # Get the sets of images and labels for training, validation, and
   # test on MNIST.
-  data_sets = input_data.read_data_sets(FLAGS.train_channel_index)
+  data_sets = input_data.read_data_sets(channel_index)
 
   # Tell TensorFlow that the model will be built into the default Graph.
   with tf.Graph().as_default():
@@ -196,7 +196,7 @@ def run_training():
 
       # Save a checkpoint and evaluate the model periodically.
       if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-          checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
+          checkpoint_file = os.path.join(log_folder, 'model.ckpt')
           saver.save(sess, checkpoint_file, global_step=step)
         # Evaluate against the validation set.
 #        do_eval(sess,
@@ -209,7 +209,9 @@ def run_training():
 
 
 def main(_):
-  run_training()
+  run_training(1, 'log/fully_connected_feed/channel1')
+  run_training(2, 'log/fully_connected_feed/channel2')
+  run_training(3, 'log/fully_connected_feed/channel3')
 
 
 if __name__ == '__main__':
