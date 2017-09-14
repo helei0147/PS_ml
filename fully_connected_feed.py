@@ -126,7 +126,10 @@ def run_training():
   """Train MNIST for a number of steps."""
   # Get the sets of images and labels for training, validation, and
   # test on MNIST.
-  data_sets = input_data.read_data_sets(FLAGS.train_channel_index)
+  data_sets1 = input_data.read_data_sets(1)
+  data_sets2 = input_data.read_data_sets(2)
+  data_sets3 = input_data.read_data_sets(3)
+  data_sets = [data_sets1, data_sets2, data_sets3]
 
   # Tell TensorFlow that the model will be built into the default Graph.
   with tf.Graph().as_default():
@@ -164,48 +167,37 @@ def run_training():
                                             graph=sess.graph)
 
     # And then after everything is built, start the training loop.
-    for step in range(FLAGS.max_steps):
-      start_time = time.time()
+    for channel_index in range(3): # three channels train and save separately
+        for step in range(FLAGS.max_steps):
+          start_time = time.time()
 
-      # Fill a feed dictionary with the actual set of images and labels
-      # for this particular training step.
-      feed_dict = fill_feed_dict(data_sets.train,
-                                 images_placeholder,
-                                 labels_placeholder,
-                                 keep_prob_placeholder,
-                                 0.5)
+          # Fill a feed dictionary with the actual set of images and labels
+          # for this particular training step.
+          feed_dict = fill_feed_dict(data_sets[channel_index].train, images_placeholder, labels_placeholder, keep_prob_placeholder, 0.5)
 
-      # Run one step of the model.  The return values are the activations
-      # from the `train_op` (which is discarded) and the `loss` Op.  To
-      # inspect the values of your Ops or variables, you may include them
-      # in the list passed to sess.run() and the value tensors will be
-      # returned in the tuple from the call.
-      _, loss_value = sess.run([train_op, loss],
-                               feed_dict=feed_dict)
+          # Run one step of the model.  The return values are the activations
+          # from the `train_op` (which is discarded) and the `loss` Op.  To
+          # inspect the values of your Ops or variables, you may include them
+          # in the list passed to sess.run() and the value tensors will be
+          # returned in the tuple from the call.
+          _, loss_value = sess.run([train_op, loss],
+                                   feed_dict=feed_dict)
 
-      duration = time.time() - start_time
+          duration = time.time() - start_time
 
-      # Write the summaries and print an overview fairly often.
-      if step % 100 == 0:
-        # Print status to stdout.
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
-        # Update the events file.
-        summary_str = sess.run(summary_op, feed_dict=feed_dict)
-        summary_writer.add_summary(summary_str, step)
-        summary_writer.flush()
+          # Write the summaries and print an overview fairly often.
+          if step % 100 == 0:
+            # Print status to stdout.
+            print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
+            # Update the events file.
+            summary_str = sess.run(summary_op, feed_dict=feed_dict)
+            summary_writer.add_summary(summary_str, step)
+            summary_writer.flush()
 
-      # Save a checkpoint and evaluate the model periodically.
-      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-          checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
-          saver.save(sess, checkpoint_file, global_step=step)
-        # Evaluate against the validation set.
-#        do_eval(sess,
-#                eval_correct,
-#                images_placeholder,
-#                labels_placeholder,
-#                keep_prob_placeholder,
-#                data_sets.validation,
-#                1)
+          # Save a checkpoint and evaluate the model periodically.
+          if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
+              checkpoint_file = os.path.join('log/fully_connected_feed/channel'+str(channel_index+1), 'model.ckpt')
+              saver.save(sess, checkpoint_file, global_step=step)
 
 
 def main(_):
