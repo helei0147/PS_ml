@@ -31,6 +31,10 @@ def inference(images):
     hidden3_units = 2048
     hidden4_units = 2048
     hidden5_units = 2048
+    # Shadow layer
+    with tf.name_scope('shadow') as scope:
+        shadow_prob = tf.placeholder(tf.float32)
+        shadowed = tf.nn.dropout(images, shadow_prob)
     # Hidden 1
     with tf.name_scope('hidden1') as scope:
         weights = tf.Variable(
@@ -116,7 +120,7 @@ def inference(images):
                              name='biases')
         normals = tf.matmul(hidden5, weights) + biases
         normals = regularize_normals(normals)
-    return normals, keep_prob
+    return normals, keep_prob, shadow_prob
 
 
 def loss(est_normals, gts):
