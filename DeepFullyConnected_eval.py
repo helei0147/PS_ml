@@ -47,7 +47,8 @@ def evaluate_channel(channel_index, log_dir):
     '''
     with tf.Graph().as_default():
 
-        image_channel1 = np.load('data/test/test_channel'+str(channel_index)+'.npy')
+        image_channels = np.load('temp/merged_7_1.npy')
+        image_channel1 = image_channels[channel_index-1::3,:]
         test_pixel_num = image_channel1.shape[0]
         BATCH_SIZE = 1000
         TEST_BATCH_NUM = test_pixel_num//BATCH_SIZE
@@ -77,7 +78,7 @@ def evaluate_channel(channel_index, log_dir):
     predict_outputs = expand(normal_outputs)
     print(predict_outputs.shape)
     np.save('predict_outputs_'+str(channel_index)+'.npy', predict_outputs)
-    gts = np.load('data/test/test_normals.npy')
+    gts = np.load('temp/normal7.npy')
     degree_error = calculate_normal_error_in_degree(predict_outputs,gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
@@ -89,7 +90,7 @@ if __name__ == '__main__':
     normal2 = evaluate_channel(2, log_dir)
     normal3 = evaluate_channel(3, log_dir)
     normal_avg = np_regularize_normal(normal1+normal2+normal3)
-    gts = np.load('data/test/test_normals.npy')
+    gts = np.load('temp/normal7.npy')
     degree_error = calculate_normal_error_in_degree(normal_avg, gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('total degree error: %s' % (avg_error))

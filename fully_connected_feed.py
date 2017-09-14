@@ -185,7 +185,7 @@ def run_training(channel_index, log_folder):
                                  keep_prob_placeholder,
                                  shadow_prob_placeholder,
                                  0.5,
-                                 shadow_prob_buffer[step])
+                                 1)
 
       # Run one step of the model.  The return values are the activations
       # from the `train_op` (which is discarded) and the `loss` Op.  To
@@ -213,9 +213,9 @@ def run_training(channel_index, log_folder):
 
 
 def main(_):
-  run_training(1, 'log/shadow/channel1')
-  run_training(2, 'log/shadow/channel2')
-  run_training(3, 'log/shadow/channel3')
+  run_training(1, 'log/fully_connected_feed/channel1')
+  run_training(2, 'log/fully_connected_feed/channel2')
+  run_training(3, 'log/fully_connected_feed/channel3')
 
 
 if __name__ == '__main__':
