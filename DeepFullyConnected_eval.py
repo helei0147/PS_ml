@@ -26,6 +26,7 @@ def calculate_normal_error_in_degree(est_normals, gts):
     est_normals: the normals to calculate, shape = n*3
     gts: ground truth ,normals to compared to, shape = n*3
     '''
+    est_normals = np.array(est_normals)
     num1 = est_normals.shape[0]
     gts = gts[:num1,...]
     to_acos = np.sum(est_normals*gts, axis = 1)
