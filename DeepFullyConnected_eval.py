@@ -81,7 +81,7 @@ def evaluate_channel(channel_index):
     print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
     return predict_outputs
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     normal1 = evaluate_channel(1)
     normal2 = evaluate_channel(2)
     normal3 = evaluate_channel(3)
