@@ -157,7 +157,7 @@ def training(loss, learning_rate):
     tf.summary.scalar(loss.op.name, loss)
 
     # Create the gradient descent optimizer with the given learning rate.
-    optimizer = tf.train.AdamOptimizer(1e-4)
+    optimizer = tf.train.AdamOptimizer()
     train_op = optimizer.minimize(loss)
     return train_op
 

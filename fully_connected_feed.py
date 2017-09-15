@@ -170,9 +170,8 @@ def run_training(channel_index, log_folder):
     summary_writer = tf.summary.FileWriter('summary',
                                             graph=sess.graph)
     _total_experiment_time = 10000000
-    shadow_prob_buffer = np.random.binomial(_total_experiment_time, 0.05, FLAGS.max_steps)
+    shadow_prob_buffer = np.random.binomial(_total_experiment_time, 0.95, FLAGS.max_steps)
     shadow_prob_buffer = shadow_prob_buffer/_total_experiment_time
-    shadow_prob_buffer = 1-shadow_prob_buffer
     # And then after everything is built, start the training loop.
     for step in range(FLAGS.max_steps):
       start_time = time.time()
