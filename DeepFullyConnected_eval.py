@@ -27,6 +27,10 @@ def calculate_normal_error_in_degree(est_normals, gts):
     est_normals: the normals to calculate, shape = n*3
     gts: ground truth ,normals to compared to, shape = n*3
     '''
+    print('est')
+    print(est_normals.shape)
+    print('gts')
+    print(gts.shape)
     est_normals = np.array(est_normals)
     num1 = est_normals.shape[0]
     gts = gts[:num1,...]
@@ -40,7 +44,7 @@ def expand(normals, axis = 0):
     num = normals.shape[0]
     return np.concatenate(normals[np.arange(num), ...],axis)
 
-def evaluate_channel(channel_index, log_dir, image_name):
+def evaluate_channel(channel_index, log_dir, image_name, model_index):
     '''
     Evaluate test pixels with related network
     channel_index: start from 1, three channels of image
@@ -48,10 +52,13 @@ def evaluate_channel(channel_index, log_dir, image_name):
     with tf.Graph().as_default():
 
         image_channels = np.load(image_name)
+        print('image_shape:')
+        print(image_channels.shape)
         image_channel1 = image_channels[channel_index-1::3,:]
         test_pixel_num = image_channel1.shape[0]
         BATCH_SIZE = 1000
         TEST_BATCH_NUM = test_pixel_num//BATCH_SIZE
+        print('TEST_BATCH_NUM:'+str(TEST_BATCH_NUM))
         OBSERVATION_NUM = 96
         image_placeholder = tf.placeholder(tf.float32,shape = (BATCH_SIZE,OBSERVATION_NUM))
         logits, keep_prob = mnist.inference(image_placeholder)
@@ -78,19 +85,22 @@ def evaluate_channel(channel_index, log_dir, image_name):
     predict_outputs = expand(normal_outputs)
     print(predict_outputs.shape)
     np.save('predict_outputs_'+str(channel_index)+'.npy', predict_outputs)
-    gts = np.load('normal_npy/normal_8.npy')
+    gts = np.load('npy/'+str(model_index)+'/normal.npy')
     degree_error = calculate_normal_error_in_degree(predict_outputs,gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
     return predict_outputs
 
-def main(image_name):
+def main(model_index):
     log_dir = 'log/fully_connected_feed/'
-    normal1 = evaluate_channel(1, log_dir, image_name)
-    normal2 = evaluate_channel(2, log_dir, image_name)
-    normal3 = evaluate_channel(3, log_dir, image_name)
+    image_name = 'npy/'+str(model_index)+'/image.npy'
+    normal1 = evaluate_channel(1, log_dir, image_name, model_index)
+    normal2 = evaluate_channel(2, log_dir, image_name, model_index)
+    normal3 = evaluate_channel(3, log_dir, image_name, model_index)
     normal_avg = np_regularize_normal(normal1+normal2+normal3)
-    gts = np.load('normal_npy/normal_8.npy')
+    gts_name = 'npy/'+str(model_index)+'/normal.npy'
+    gts = np.load(gts_name)
+    print(gts_name)
     degree_error = calculate_normal_error_in_degree(normal_avg, gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('total degree error: %s' % (avg_error))
@@ -98,9 +108,8 @@ def main(image_name):
 
 if __name__ == '__main__':
     avg_err_buffer = []
-    for i in range(100):
-        image_name = '8/8_'+str(i)+'.npy'
-        avg_error = main(image_name)
+    for i in range(10):
+        avg_error = main(i)
         avg_err_buffer.append(avg_error)
     
     avg_err_buffer = np.array(avg_err_buffer)
