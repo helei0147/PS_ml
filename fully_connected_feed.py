@@ -58,11 +58,10 @@ def placeholder_inputs(batch_size):
                                                          mnist.OBSERVATION_NUM))
   labels_placeholder = tf.placeholder(tf.float32, shape=(batch_size,3))
   keep_prob_placeholder = tf.placeholder(tf.float32)
-  shadow_prob_placeholder = tf.placeholder(tf.float32)
-  return images_placeholder, labels_placeholder, keep_prob_placeholder, shadow_prob_placeholder
+  return images_placeholder, labels_placeholder, keep_prob_placeholder
 
 
-def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, shadow_prob_pl, keep_prob_value,shadow_prob_value):
+def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, keep_prob_value):
   """Fills the feed_dict for training the given step.
 
   A feed_dict takes the form of:
@@ -86,7 +85,6 @@ def fill_feed_dict(data_set, observations_pl, normals_pl, keep_prob_pl, shadow_p
       observations_pl: observations_feed,
       normals_pl: normals_feed,
       keep_prob_pl: keep_prob_value,
-      shadow_prob_pl: shadow_prob_value
 
   }
   return feed_dict
@@ -97,10 +95,8 @@ def do_eval(sess,
             images_placeholder,
             labels_placeholder,
             keep_prob_placeholder,
-            shadow_prob_placeholder,
             data_set,
-            keep_prob_value,
-            shadow_prob_value):
+            keep_prob_value):
   """Runs one evaluation against the full epoch of data.
 
   Args:
@@ -120,9 +116,7 @@ def do_eval(sess,
                                images_placeholder,
                                labels_placeholder,
                                keep_prob_placeholder,
-                               shadow_prob_placeholder,
-                               keep_prob_value,
-                               shadow_prob_value)
+                               keep_prob_value)
     error += sess.run(eval_correct, feed_dict=feed_dict)
   avg_error = float(error) / float(num_examples)
   print('  Num examples: %d  avg_error: %0.04f' %
@@ -138,11 +132,11 @@ def run_training(channel_index, log_folder):
   # Tell TensorFlow that the model will be built into the default Graph.
   with tf.Graph().as_default():
     # Generate placeholders for the images and labels.
-    images_placeholder, labels_placeholder, keep_prob_placeholder, shadow_prob_placeholder = placeholder_inputs(
+    images_placeholder, labels_placeholder, keep_prob_placeholder = placeholder_inputs(
         FLAGS.batch_size)
 
     # Build a Graph that computes predictions from the inference model.
-    logits, keep_prob_placeholder, shadow_prob_placeholder = mnist.inference(images_placeholder)
+    logits, keep_prob_placeholder = mnist.inference(images_placeholder)
 
     # Add to the Graph the Ops for loss calculation.
     loss = mnist.loss(logits, labels_placeholder)
@@ -169,9 +163,6 @@ def run_training(channel_index, log_folder):
     # Instantiate a SummaryWriter to output summaries and the Graph.
     summary_writer = tf.summary.FileWriter('summary',
                                             graph=sess.graph)
-    _total_experiment_time = 10000000
-    shadow_prob_buffer = np.random.binomial(_total_experiment_time, 0.95, FLAGS.max_steps)
-    shadow_prob_buffer = shadow_prob_buffer/_total_experiment_time
     # And then after everything is built, start the training loop.
     for step in range(FLAGS.max_steps):
       start_time = time.time()
@@ -182,9 +173,7 @@ def run_training(channel_index, log_folder):
                                  images_placeholder,
                                  labels_placeholder,
                                  keep_prob_placeholder,
-                                 shadow_prob_placeholder,
-                                 0.5,
-                                 1)
+                                 0.5)
 
       # Run one step of the model.  The return values are the activations
       # from the `train_op` (which is discarded) and the `loss` Op.  To
