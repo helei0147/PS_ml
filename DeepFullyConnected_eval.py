@@ -54,7 +54,7 @@ def evaluate_channel(channel_index, log_dir, image_name):
         TEST_BATCH_NUM = test_pixel_num//BATCH_SIZE
         OBSERVATION_NUM = 96
         image_placeholder = tf.placeholder(tf.float32,shape = (BATCH_SIZE,OBSERVATION_NUM))
-        logits, keep_prob, shadow_prob = mnist.inference(image_placeholder)
+        logits, keep_prob = mnist.inference(image_placeholder)
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
@@ -70,7 +70,7 @@ def evaluate_channel(channel_index, log_dir, image_name):
             normal_outputs = np.ndarray((TEST_BATCH_NUM,BATCH_SIZE,3))
 
             for i in range(TEST_BATCH_NUM):
-                feed_dict = {image_placeholder: image_channel1[i*BATCH_SIZE:(i+1)*BATCH_SIZE], keep_prob: 1, shadow_prob: 1}
+                feed_dict = {image_placeholder: image_channel1[i*BATCH_SIZE:(i+1)*BATCH_SIZE], keep_prob: 1}
                 outputs = sess.run(logits, feed_dict=feed_dict)
                 normal_outputs[i,...] = outputs
 
@@ -85,7 +85,7 @@ def evaluate_channel(channel_index, log_dir, image_name):
     return predict_outputs
 
 def main(image_name):
-    log_dir = 'log/shadow/'
+    log_dir = 'log/fully_connected_feed/'
     normal1 = evaluate_channel(1, log_dir, image_name)
     normal2 = evaluate_channel(2, log_dir, image_name)
     normal3 = evaluate_channel(3, log_dir, image_name)
@@ -104,5 +104,5 @@ if __name__ == '__main__':
         avg_err_buffer.append(avg_error)
     
     avg_err_buffer = np.array(avg_err_buffer)
-    np.save('avg_error.npy', avg_err_buffer)
+    np.save('avg_error_no_shadow.npy', avg_err_buffer)
 
