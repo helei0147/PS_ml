@@ -40,7 +40,7 @@ def expand(normals, axis = 0):
     num = normals.shape[0]
     return np.concatenate(normals[np.arange(num), ...],axis)
 
-def evaluate_channel(channel_index, log_dir, image_name):
+def evaluate_channel(channel_index, log_dir, image_name, model_index):
     '''
     Evaluate test pixels with related network
     channel_index: start from 1, three channels of image
@@ -78,19 +78,20 @@ def evaluate_channel(channel_index, log_dir, image_name):
     predict_outputs = expand(normal_outputs)
     print(predict_outputs.shape)
     np.save('predict_outputs_'+str(channel_index)+'.npy', predict_outputs)
-    gts = np.load('normal_npy/normal_8.npy')
+    gts = np.load('npy/'+str(model_index)+'/normal.npy')
     degree_error = calculate_normal_error_in_degree(predict_outputs,gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
     return predict_outputs
 
-def main(image_name):
+def main(model_index):
     log_dir = 'log/shadow/'
-    normal1 = evaluate_channel(1, log_dir, image_name)
-    normal2 = evaluate_channel(2, log_dir, image_name)
-    normal3 = evaluate_channel(3, log_dir, image_name)
+    image_name = 'npy/'+str(model_index)+'/image.npy'
+    normal1 = evaluate_channel(1, log_dir, image_name, model_index)
+    normal2 = evaluate_channel(2, log_dir, image_name, model_index)
+    normal3 = evaluate_channel(3, log_dir, image_name, model_index)
     normal_avg = np_regularize_normal(normal1+normal2+normal3)
-    gts = np.load('normal_npy/normal_8.npy')
+    gts = np.load('npy/'+str(model_index)+'/normal.npy')
     degree_error = calculate_normal_error_in_degree(normal_avg, gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('total degree error: %s' % (avg_error))
@@ -98,11 +99,10 @@ def main(image_name):
 
 if __name__ == '__main__':
     avg_err_buffer = []
-    for i in range(100):
-        image_name = '8/8_'+str(i)+'.npy'
-        avg_error = main(image_name)
+    for i in range(10):
+        avg_error = main(i)
         avg_err_buffer.append(avg_error)
     
     avg_err_buffer = np.array(avg_err_buffer)
-    np.save('avg_error.npy', avg_err_buffer)
+    np.save('avg_error_shadow.npy', avg_err_buffer)
 
