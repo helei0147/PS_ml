@@ -40,14 +40,14 @@ def expand(normals, axis = 0):
     num = normals.shape[0]
     return np.concatenate(normals[np.arange(num), ...],axis)
 
-def evaluate_channel(channel_index, log_dir):
+def evaluate_channel(channel_index, log_dir, image_name):
     '''
     Evaluate test pixels with related network
     channel_index: start from 1, three channels of image
     '''
     with tf.Graph().as_default():
 
-        image_channels = np.load('temp/merged_7_1.npy')
+        image_channels = np.load(image_name)
         image_channel1 = image_channels[channel_index-1::3,:]
         test_pixel_num = image_channel1.shape[0]
         BATCH_SIZE = 1000
@@ -78,19 +78,31 @@ def evaluate_channel(channel_index, log_dir):
     predict_outputs = expand(normal_outputs)
     print(predict_outputs.shape)
     np.save('predict_outputs_'+str(channel_index)+'.npy', predict_outputs)
-    gts = np.load('temp/normal7.npy')
+    gts = np.load('normal_npy/normal_8.npy')
     degree_error = calculate_normal_error_in_degree(predict_outputs,gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('channel_index: %s, avg_error = %s' % (channel_index, avg_error))
     return predict_outputs
 
-if __name__ == '__main__':
+def main(image_name):
     log_dir = 'log/shadow/'
-    normal1 = evaluate_channel(1, log_dir)
-    normal2 = evaluate_channel(2, log_dir)
-    normal3 = evaluate_channel(3, log_dir)
+    normal1 = evaluate_channel(1, log_dir, image_name)
+    normal2 = evaluate_channel(2, log_dir, image_name)
+    normal3 = evaluate_channel(3, log_dir, image_name)
     normal_avg = np_regularize_normal(normal1+normal2+normal3)
-    gts = np.load('temp/normal7.npy')
+    gts = np.load('normal_npy/normal_8.npy')
     degree_error = calculate_normal_error_in_degree(normal_avg, gts)
     avg_error = np.sum(degree_error)/degree_error.shape[0]
     print('total degree error: %s' % (avg_error))
+    return avg_error
+
+if __name__ == '__main__':
+    avg_err_buffer = []
+    for i in range(100):
+        image_name = '8/8_'+str(i)+'.npy'
+        avg_error = main(image_name)
+        avg_err_buffer.append(avg_error)
+    
+    avg_err_buffer = np.array(avg_err_buffer)
+    np.save('avg_error.npy', avg_err_buffer)
+
