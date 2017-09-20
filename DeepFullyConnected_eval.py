@@ -102,7 +102,9 @@ if __name__ == '__main__':
         image_name = '8/8_'+str(i)+'.npy'
         avg_error = main(image_name)
         avg_err_buffer.append(avg_error)
-    
+    for i in avg_err_buffer:
+        print(i)
+
     avg_err_buffer = np.array(avg_err_buffer)
     np.save('avg_error.npy', avg_err_buffer)
 
