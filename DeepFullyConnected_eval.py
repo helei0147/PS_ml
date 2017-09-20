@@ -111,7 +111,8 @@ if __name__ == '__main__':
     for i in range(10):
         avg_error = main(i)
         avg_err_buffer.append(avg_error)
-    
+    for i in avg_err_buffer:
+        print(i)
     avg_err_buffer = np.array(avg_err_buffer)
     np.save('avg_error_no_shadow.npy', avg_err_buffer)
 
